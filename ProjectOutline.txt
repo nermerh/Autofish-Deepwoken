@@ -1,0 +1,32 @@
+
+1. Start Up GUI which has options for:
+    - Option to use bait?
+        - Type of bait
+    - Select keybind for starting and stopping.
+    - Option to make sound when a chest is found.
+    - Set fishing rod slot
+
+2. On start keybind pressed:
+    - equip fishing rod
+    - if using bait then look for bait.
+        - if there isnt any bait then attempt to make some.
+            - look for:
+                "Sea Bass",
+                "Red Snapper",
+                "Tuna",
+            - if fish found then craft into fish meat until there is no fish left.
+            - craft all fish meat into chum.
+        - if bait is found then use bait on rod.
+    - Cast rod and start listening for a line caught event.
+
+3. On line caught:
+    - Stop listening for line caught event
+    - Start autoclicker.
+    - Hold down A, S, or D when they show up.
+    - Listen for fishing end event.
+        - Stop autoclicker.
+        - Stop listening for a, s , and d.
+    - if the reward was a chest make a sound
+
+4. Repeat process
+        
