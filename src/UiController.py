@@ -1,4 +1,8 @@
 import tkinter
+from pynput import keyboard
+import threading
+from queue import Queue
+from AutofishProcessController import autofish_process
 
 class Ui(tkinter.Tk):
 
@@ -6,6 +10,9 @@ class Ui(tkinter.Tk):
         super().__init__()
 
         self.enabled = False
+        self.processStarted = False
+        self.keyPressed = False
+        self.keybind = "z"
 
         # configure window
         self.title("Autofish Deepwoken")
@@ -58,9 +65,40 @@ class Ui(tkinter.Tk):
         self.enable_button = tkinter.Button(self.activation_frame, text="Enable!", command=self.toggle_enabled_event ,bg="RoyalBlue1", fg="snow")
         self.enable_button.grid(row=1, column=0, padx=20, pady=10, sticky="nsew")
 
-        self.enable_status_label = tkinter.Label(self.activation_frame, text="DISABLED", fg="red", font=("Arial", 12, "bold"))
+        self.enable_status_label = tkinter.Label(self.activation_frame, text="DISABLED", fg="red2", font=("Arial", 12, "bold"))
         self.enable_status_label.grid(row=1, column=1, padx=(20, 0), pady=10, sticky="nsew")
+
+        self.listener = keyboard.Listener(on_press=self.toggle_process, on_release=self.on_release)
+        self.listener.start()
+
+        self.command_queue = Queue()
+        self.autofish_thread = threading.Thread(target=autofish_process, args=(self.command_queue,))
+        self.autofish_thread.start()
+
+    def toggle_process(self, key):
+        if not self.enabled or self.keyPressed: return
+        self.keyPressed = True
+
+        if self.processStarted:
+            self.processStarted = False
+            self.command_queue.put("start")
+            print("end process")
+        else:
+             self.processStarted = True
+             self.command_queue.put("stop")
+             print("start process")
+
+    def on_release(self, key):
+        self.keyPressed = False
     
     def toggle_enabled_event(self):
         if self.enabled:
-            pass
+            self.enabled = False
+            self.keybind_button.config(state="normal")
+            self.enable_status_label.config(text="DISABLED", fg="red2")
+            self.enable_button.config(text="Enable!")
+        else:
+            self.enabled = True
+            self.keybind_button.config(state="disabled")
+            self.enable_status_label.config(text="ENABLED", fg="green2")
+            self.enable_button.config(text="Disable!")
