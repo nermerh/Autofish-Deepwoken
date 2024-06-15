@@ -1,8 +1,8 @@
 from UiController import *
 
 def main():
-    uiInst = Ui()
-    uiInst.Begin()
+    ui = Ui()
+    ui.mainloop()
 
 if __name__ == "__main__":
     main()
