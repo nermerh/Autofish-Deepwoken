@@ -4,46 +4,7 @@ from pynput import keyboard
 class Ui():
 
     def __init__(self):
-        self.root = Tk()
-
-        self.baitVal = IntVar()
-        self.chestSoundVal = BooleanVar()
-
-        self.statusLabel = None
-        self.enabled = False
-        self.running = False
-
-        self.enabledButton = None
-
-        self.RodSpinbox= None
-
-        self._initialize()
-    
-    def Begin(self):
-        self.root.mainloop()
-
-    # Proccess
-
-
-    # Input
-    def OnEnabledButtonPressed(self):
-        root = self.root
-        statusLabel = self.statusLabel
-        enabledButton = self.enabledButton
-
-        if self.enabled:
-            self.enabled = False
-            statusLabel.config(text="Disabled", fg="red", font=("Arial", 12, "bold"))
-            enabledButton.config(text="Enable")
-            root.unbind("<z>", self.OnKeybindPressed)
-        else:
-            self.enabled = True
-            statusLabel.config(text="Enabled", fg="green", font=("Arial", 12, "bold"))
-            enabledButton.config(text="Disable")
-            root.bind("<z>", self.OnKeybindPressed)
-
-    def OnKeybindPressed(self, event):
-        print("key bind pressed")
+        pass
 
     # Initially create guis elements
     def _initialize(self):
