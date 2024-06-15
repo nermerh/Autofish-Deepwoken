@@ -1,23 +1,53 @@
 from tkinter import *
-from PIL import ImageTk, Image
+from pynput import keyboard
 
 class Ui():
-    root = None
 
     def __init__(self):
         self.root = Tk()
+
         self.baitVal = IntVar()
         self.chestSoundVal = BooleanVar()
+
+        self.statusLabel = None
+        self.enabled = False
+        self.running = False
+
+        self.enabledButton = None
+
+        self.RodSpinbox= None
 
         self._initialize()
     
     def Begin(self):
         self.root.mainloop()
-    
+
+    # Proccess
+
+
+    # Input
+    def OnEnabledButtonPressed(self):
+        root = self.root
+        statusLabel = self.statusLabel
+        enabledButton = self.enabledButton
+
+        if self.enabled:
+            self.enabled = False
+            statusLabel.config(text="Disabled", fg="red", font=("Arial", 12, "bold"))
+            enabledButton.config(text="Enable")
+            root.unbind("<z>", self.OnKeybindPressed)
+        else:
+            self.enabled = True
+            statusLabel.config(text="Enabled", fg="green", font=("Arial", 12, "bold"))
+            enabledButton.config(text="Disable")
+            root.bind("<z>", self.OnKeybindPressed)
+
+    def OnKeybindPressed(self, event):
+        print("key bind pressed")
+
     # Initially create guis elements
     def _initialize(self):
         r = 0
-        c = 0
 
         root = self.root
         root.title("Autofish Deepwoken")
@@ -58,6 +88,7 @@ class Ui():
     def _makeBaitButtons(self, baitFrame):
         baitR1 = Radiobutton(baitFrame, text="None", variable=self.baitVal, value=1)
         baitR1.grid(row=0, column=0, padx=5, pady=5, sticky="snsew")
+        baitR1.select()
 
         baitR2 = Radiobutton(baitFrame, text="Chum", variable=self.baitVal, value=2)
         baitR2.grid(row=1, column=0, padx=5, pady=5, sticky="snsew")
@@ -67,15 +98,19 @@ class Ui():
         checkBox.grid(row=0, column=0, padx=5, pady=5, sticky="snsew")
 
     def _makeFishingRodHotbarButton(self, rodFrame):
-        rodButton = Spinbox(rodFrame, from_=0, to_=9, wrap=True)
+        rodButton = Spinbox(rodFrame, from_=0, to_=9, wrap=True, state="readonly")
         rodButton.grid(row=0, column=0, padx=5, pady=5, sticky="snsew")
+        self.RodSpinbox = rodButton
 
     def _makeActivationButtons(self, activationFrame):
         keybindButton = Button(activationFrame, text="Keybind: Z")
         keybindButton.grid(row=0, column=0, padx=5, pady=5, sticky="snsew")
 
-        enableButton = Button(activationFrame, text="Enable")
+        enableButton = Button(activationFrame, text="Enable", command=self.OnEnabledButtonPressed)
         enableButton.grid(row=1, column=0, padx=5, pady=5, sticky="snsew")
+        self.enabledButton = enableButton
 
         statusLabel = Label(activationFrame, text="Disabled", fg="red", font=("Arial", 12, "bold"))
         statusLabel.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+        self.statusLabel = statusLabel
+    
