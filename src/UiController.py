@@ -5,6 +5,40 @@ from AutofishProcessController import autofish_process
 
 class Ui(tkinter.Tk):
 
+    # Keyboard events
+    def on_press(self, key):
+        if not self.enabled or self.keyPressed: return
+        self.keyPressed = True
+
+        if self.processStarted:
+            self.processStarted = False
+            self.process_paralell.terminate()
+            self.process_paralell.join()
+        else:
+            self.processStarted = True
+            self.process_paralell = multiprocessing.Process(target=autofish_process, daemon=True) # omg 😈😈😈
+            self.process_paralell.start()
+
+    def on_release(self, key):
+        self.keyPressed = False
+    
+    # Gui button events
+    def toggle_enabled_event(self):
+        if self.enabled:
+            self.enabled = False
+            if self.process_paralell.is_alive:
+                self.process_paralell.terminate()
+                self.process_paralell.join()
+            self.keybind_button.config(state="normal")
+            self.enable_status_label.config(text="DISABLED", fg="red2")
+            self.enable_button.config(text="Enable!")
+        else:
+            self.enabled = True
+            self.keybind_button.config(state="disabled")
+            self.enable_status_label.config(text="ENABLED", fg="green2")
+            self.enable_button.config(text="Disable!")
+
+    # Creating the gui on object init
     def __init__(self):
         super().__init__()
 
@@ -67,38 +101,8 @@ class Ui(tkinter.Tk):
         self.enable_status_label = tkinter.Label(self.activation_frame, text="DISABLED", fg="red2", font=("Arial", 12, "bold"))
         self.enable_status_label.grid(row=1, column=1, padx=(20, 0), pady=10, sticky="nsew")
 
-        self.listener = keyboard.Listener(on_press=self.toggle_process, on_release=self.on_release)
+        self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
         self.listener.start()
 
         self.process_paralell = multiprocessing.Process(target=autofish_process, daemon=True)
 
-    def toggle_process(self, key):
-        if not self.enabled or self.keyPressed: return
-        self.keyPressed = True
-
-        if self.processStarted:
-            self.processStarted = False
-            self.process_paralell.terminate()
-            self.process_paralell.join()
-        else:
-            self.processStarted = True
-            self.process_paralell = multiprocessing.Process(target=autofish_process, daemon=True)
-            self.process_paralell.start()
-
-    def on_release(self, key):
-        self.keyPressed = False
-    
-    def toggle_enabled_event(self):
-        if self.enabled:
-            self.enabled = False
-            if self.process_paralell.is_alive:
-                self.process_paralell.terminate()
-                self.process_paralell.join()
-            self.keybind_button.config(state="normal")
-            self.enable_status_label.config(text="DISABLED", fg="red2")
-            self.enable_button.config(text="Enable!")
-        else:
-            self.enabled = True
-            self.keybind_button.config(state="disabled")
-            self.enable_status_label.config(text="ENABLED", fg="green2")
-            self.enable_button.config(text="Disable!")
