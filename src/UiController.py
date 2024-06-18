@@ -1,5 +1,6 @@
 import tkinter
 import multiprocessing
+import asyncio
 from pynput import keyboard
 from AutofishProcessController import autofish_process
 
@@ -83,9 +84,9 @@ class Ui(tkinter.Tk):
         else:
             self.processStarted = True
             self.process_parallel = multiprocessing.Process(target=autofish_process, daemon=True, kwargs= {
-                "bait" : self.bait_radio_var.get(),
-                "chest_sound" : self.chest_check_var.get(),
-                "rod_slot" : self.rod_spinner.get()
+                "bait" : self.bait_radio_var.get(), # int
+                "chest_sound" : self.chest_check_var.get(), # bool
+                "rod_slot" : self.rod_spinner.get() # str
             })
             self.process_parallel.start()
 
