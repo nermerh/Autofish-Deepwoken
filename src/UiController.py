@@ -1,43 +1,9 @@
 import tkinter
-from pynput import keyboard
 import multiprocessing
+from pynput import keyboard
 from AutofishProcessController import autofish_process
 
 class Ui(tkinter.Tk):
-
-    # Keyboard events
-    def on_press(self, key):
-        if not self.enabled or self.keyPressed: return
-        self.keyPressed = True
-
-        if self.processStarted:
-            self.processStarted = False
-            self.process_paralell.terminate()
-            self.process_paralell.join()
-        else:
-            self.processStarted = True
-            self.process_paralell = multiprocessing.Process(target=autofish_process, daemon=True) # omg 😈😈😈
-            self.process_paralell.start()
-
-    def on_release(self, key):
-        self.keyPressed = False
-    
-    # Gui button events
-    def toggle_enabled_event(self):
-        if self.enabled:
-            self.enabled = False
-            if self.process_paralell.is_alive:
-                self.process_paralell.terminate()
-                self.process_paralell.join()
-            self.keybind_button.config(state="normal")
-            self.enable_status_label.config(text="DISABLED", fg="red2")
-            self.enable_button.config(text="Enable!")
-        else:
-            self.enabled = True
-            self.keybind_button.config(state="disabled")
-            self.enable_status_label.config(text="ENABLED", fg="green2")
-            self.enable_button.config(text="Disable!")
-
     # Creating the gui on object init
     def __init__(self):
         super().__init__()
@@ -104,5 +70,55 @@ class Ui(tkinter.Tk):
         self.listener = keyboard.Listener(on_press=self.on_press, on_release=self.on_release)
         self.listener.start()
 
-        self.process_paralell = multiprocessing.Process(target=autofish_process, daemon=True)
+        self.process_parallel = multiprocessing.Process(target=autofish_process, daemon=True)
 
+    # Keyboard events
+    def on_press(self, key):
+        if not self.enabled or self.keyPressed: return
+        if not key == keyboard.Key.enter: return
+        self.keyPressed = True
+
+        if self.processStarted:
+            self.terminate_process()
+        else:
+            self.processStarted = True
+            self.process_parallel = multiprocessing.Process(target=autofish_process, daemon=True, kwargs= {
+                "bait" : self.bait_radio_var.get(),
+                "chest_sound" : self.chest_check_var.get(),
+                "rod_slot" : self.rod_spinner.get()
+            })
+            self.process_parallel.start()
+
+    def on_release(self, key):
+        self.keyPressed = False
+    
+    # Gui button events
+    def toggle_enabled_event(self):
+        if self.enabled:
+            self.enabled = False
+            if self.processStarted: self.terminate_process()
+            # enable input guis
+            self.keybind_button.config(state="normal")
+            self.rod_spinner.config(state="normal")
+            self.chest_checkbox.config(state="normal")
+            self.bait_radio_1.config(state="normal")
+            self.bait_radio_2.config(state="normal")
+
+            self.enable_status_label.config(text="DISABLED", fg="red2")
+            self.enable_button.config(text="Enable!")
+        else:
+            self.enabled = True
+            # disable input guis
+            self.keybind_button.config(state="disabled")
+            self.rod_spinner.config(state="disabled")
+            self.chest_checkbox.config(state="disabled")
+            self.bait_radio_1.config(state="disabled")
+            self.bait_radio_2.config(state="disabled")
+
+            self.enable_status_label.config(text="ENABLED", fg="green2")
+            self.enable_button.config(text="Disable!")
+
+    def terminate_process(self):
+        self.processStarted = False
+        self.process_parallel.terminate()
+        self.process_parallel.join()
